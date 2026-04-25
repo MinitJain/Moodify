@@ -51,10 +51,6 @@ const songs = [
   },
 ];
 
-function uploadSong(req, res) {
-  res.status(501).json({ message: "upload disabled in hardcoded mode" });
-}
-
 function getSong(req, res) {
   const { mood } = req.query;
   const matches = songs.filter((s) => s.mood === mood);
@@ -62,5 +58,4 @@ function getSong(req, res) {
   const song = pool[Math.floor(Math.random() * pool.length)];
   res.status(200).json({ message: "song fetched successfully.", song });
 }
-
-module.exports = { uploadSong, getSong };
+module.exports = { getSong };
