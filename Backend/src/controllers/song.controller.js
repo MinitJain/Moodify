@@ -1,56 +1,66 @@
-const songModel = require("../models/song.model")
-const storageService = require("../services/storage.service")
-const id3 = require("node-id3")
+const songs = [
+  {
+    mood: "happy",
+    title: "Happy Vibes",
+    url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    posterUrl: "https://picsum.photos/seed/happy/300/300",
+  },
+  {
+    mood: "happy",
+    title: "Upbeat Morning",
+    url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
+    posterUrl: "https://picsum.photos/seed/happy2/300/300",
+  },
+  {
+    mood: "happy",
+    title: "Sunny Groove",
+    url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3",
+    posterUrl: "https://picsum.photos/seed/happy3/300/300",
+  },
 
+  {
+    mood: "sad",
+    title: "Rainy Day",
+    url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+    posterUrl: "https://picsum.photos/seed/sad/300/300",
+  },
+  {
+    mood: "sad",
+    title: "Blue Hours",
+    url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3",
+    posterUrl: "https://picsum.photos/seed/sad2/300/300",
+  },
+  {
+    mood: "sad",
+    title: "Empty Room",
+    url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3",
+    posterUrl: "https://picsum.photos/seed/sad3/300/300",
+  },
 
-async function uploadSong(req, res) {
+  {
+    mood: "surprised",
+    title: "Whoa Moment",
+    url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3",
+    posterUrl: "https://picsum.photos/seed/surprised2/300/300",
+  },
+  {
+    mood: "surprised",
+    title: "Unexpected Turn",
+    url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3",
+    posterUrl: "https://picsum.photos/seed/surprised3/300/300",
+  },
+];
 
-    const songBuffer = req.file.buffer
-    const { mood } = req.body
-
-    const tags = id3.read(songBuffer)
-
-    const [ songFile, posterFile ] = await Promise.all([
-        storageService.uploadFile({
-            buffer: songBuffer,
-            filename: tags.title + ".mp3",
-            folder: "/cohort-2/moodify/songs"
-        }),
-        storageService.uploadFile({
-            buffer: tags.image.imageBuffer,
-            filename: tags.title + ".jpeg",
-            folder: "/cohort-2/moodify/posters"
-        })
-    ])
-
-    const song = await songModel.create({
-        title: tags.title,
-        url: songFile.url,
-        posterUrl: posterFile.url,
-        mood
-    })
-
-    res.status(201).json({
-        message: "song created successfully",
-        song
-    })
-
+function uploadSong(req, res) {
+  res.status(501).json({ message: "upload disabled in hardcoded mode" });
 }
 
-async function getSong(req, res) {
-
-    const { mood } = req.query
-
-    const song = await songModel.findOne({
-        mood,
-    })
-
-    res.status(200).json({
-        message: "song fetched successfully.",
-        song,
-    })
-
+function getSong(req, res) {
+  const { mood } = req.query;
+  const matches = songs.filter((s) => s.mood === mood);
+  const pool = matches.length > 0 ? matches : songs;
+  const song = pool[Math.floor(Math.random() * pool.length)];
+  res.status(200).json({ message: "song fetched successfully.", song });
 }
 
-
-module.exports = { uploadSong, getSong }
+module.exports = { uploadSong, getSong };
